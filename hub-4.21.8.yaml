@@ -1,0 +1,100 @@
+plan: hub-cluster
+force: false
+version: stable
+#disconnected_channel: fast
+tag: "4.21.8"
+cluster: "hub"
+domain: 5g-deployment.lab
+api_ip: 192.168.125.10
+ingress_ip: 192.168.125.11
+disconnected: True
+disconnected_url: infra.5g-deployment.lab:8443
+disconnected_update: True
+disconnected_user: admin
+disconnected_password: r3dh4t1!
+disconnected_operators_version: v4.21-1777899690
+disconnected_prefix: openshift/release-images
+prega: False
+disconnected_operators:
+- name: advanced-cluster-management
+  channels:
+  - name: release-2.16
+- name: multicluster-engine
+  channels:
+  - name: stable-2.11
+- name: topology-aware-lifecycle-manager
+  channels:
+  - name: stable
+- name: openshift-gitops-operator
+  channels:
+  - name: latest
+- name: lvms-operator
+  channels:
+  - name: stable-4.21
+- name: sriov-network-operator
+  channels:
+  - name: stable
+- name: lifecycle-agent
+  channels:
+  - name: stable
+- name: redhat-oadp-operator
+  channels:
+  - name: stable
+- name: ptp-operator
+  channels:
+  - name: stable
+- name: cluster-logging
+  channels:
+  - name: stable-6.5
+- name: loki-operator
+  channels:
+  - name: stable-6.5
+disconnected_extra_images:
+- registry.redhat.io/openshift4/ztp-site-generate-rhel8:v4.21.0-1
+# Image below is required for kustomize plugins
+- registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel9:v2.16.0-1
+# Seed image for IBU
+- quay.io/rhsysdeseng/lab5gran:v4.21.10
+disconnected_extra_release: 4.21.10
+disk_size: 120
+extra_disks: [120]
+memory: 26000
+numcpus: 16
+ctlplanes: 3
+workers: 0
+metal3: true
+network: 5gdeploymentlab
+users_dev: developer
+users_devpassword: 'I6QLmVP6mYTn2HDu'
+users_admin: admin
+users_adminpassword: 'admin1234'
+lvms_devices:
+- /dev/vdb
+apps:
+- users
+- openshift-gitops-operator
+- lvms-operator
+vmrules:
+- hub-bootstrap: 
+    nets:
+    - name: 5gdeploymentlab
+      mac: aa:aa:aa:aa:01:07
+- hub-ctlplane-0:
+    nets:
+    - name: 5gdeploymentlab
+      mac: aa:aa:aa:aa:01:01
+    - name: ptp-network
+      # sriov: true creates virtual igb ifaces with ptp support
+      sriov: true
+- hub-ctlplane-1:
+    nets:
+    - name: 5gdeploymentlab
+      mac: aa:aa:aa:aa:01:02
+    - name: ptp-network
+      sriov: true
+- hub-ctlplane-2:
+    nets:
+    - name: 5gdeploymentlab
+      mac: aa:aa:aa:aa:01:03
+    - name: ptp-network
+      sriov: true
