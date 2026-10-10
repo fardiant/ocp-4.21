@@ -1,0 +1,119 @@
+dnf -y install libvirt libvirt-daemon-driver-qemu qemu-kvm
+usermod -aG qemu,libvirt $(id -un)
+newgrp libvirt
+
+systemctl enable libvirtd --now
+
+dnf -y install bash-completion vim jq tar git ipcalc pip https://github.com/RHsyseng/5g-ran-deployments-on-ocp-lab/releases/download/4.21/kcli-99.0.0.git.202602040650.86cacd3-0.el9.x86_64.rpm
+pip install pyopenssl
+
+kcli download oc -P version=stable -P tag='4.21'
+kcli download kubectl -P version=latest -P tag='4.21'
+mv kubectl oc /usr/bin/
+
+kcli create network -c 192.168.125.0/24 -P dns=false -P dhcp=false --domain 5g-deployment.lab 5gdeploymentlab
+kcli create network -c 192.168.100.0/24 -P dhcp=false -P dns=false --domain sriov-network.lab -i sriov-network
+kcli create network -c 192.168.200.0/24 -P dhcp=false -P dns=false --domain ptp-network.lab -i ptp-network
+
+dnf -y install dnsmasq policycoreutils-python-utils
+mkdir -p /opt/dnsmasq/include.d/
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/dnsmasq/dnsmasq.conf -o /opt/dnsmasq/dnsmasq.conf
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/dnsmasq/upstream-resolv.conf -o /opt/dnsmasq/upstream-resolv.conf
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/dnsmasq/hub.ipv4 -o /opt/dnsmasq/include.d/hub.ipv4
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/dnsmasq/sno1.ipv4 -o /opt/dnsmasq/include.d/sno1.ipv4
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/dnsmasq/sno2.ipv4 -o /opt/dnsmasq/include.d/sno2.ipv4
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/dnsmasq/infrastructure-host.ipv4 -o /opt/dnsmasq/include.d/infrastructure-host.ipv4
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/dnsmasq/dnsmasq-virt.service -o /etc/systemd/system/dnsmasq-virt.service
+touch /opt/dnsmasq/hosts.leases
+semanage fcontext -a -t dnsmasq_lease_t /opt/dnsmasq/hosts.leases
+restorecon /opt/dnsmasq/hosts.leases
+sed -i "s/UPSTREAM_DNS/1.1.1.1/" /opt/dnsmasq/upstream-resolv.conf
+systemctl daemon-reload
+systemctl enable dnsmasq-virt
+systemctl mask dnsmasq
+
+semanage fcontext -a -t dnsmasq_etc_t "/opt/dnsmasq/include.d(/.*)?"
+semanage fcontext -a -t dnsmasq_lease_t "/opt/dnsmasq/(.*)?\.leases"
+semanage fcontext -a -t dnsmasq_etc_t "/opt/dnsmasq/(.*)?\.conf"
+semanage fcontext -a -t dnsmasq_etc_t "/opt/dnsmasq"
+restorecon -rv /opt/dnsmasq/
+
+systemctl restart dnsmasq-virt.service
+
+sleep 30
+
+curl -L https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/hypervisor/forcedns -o /etc/NetworkManager/dispatcher.d/forcedns
+chmod +x /etc/NetworkManager/dispatcher.d/forcedns
+systemctl restart NetworkManager
+/etc/NetworkManager/dispatcher.d/forcedns
+
+systemctl disable firewalld
+systemctl stop firewalld
+iptables -F
+systemctl restart libvirtd
+
+curl -L https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/webcache/podman-webcache.service -o /etc/systemd/system/podman-webcache.service
+mkdir -p /opt/webcache/data
+curl -L https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.21/4.21.0/rhcos-4.21.0-x86_64-live-rootfs.x86_64.img -o /opt/webcache/data/rhcos-4.21.0-x86_64-live-rootfs.x86_64.img
+curl -L https://mirror.openshift.com/pub/openshift-v4/x86_64/dependencies/rhcos/4.21/4.21.0/rhcos-4.21.0-x86_64-live-iso.x86_64.iso -o /opt/webcache/data/rhcos-4.21.0-x86_64-live-iso.x86_64.iso
+systemctl daemon-reload
+systemctl enable podman-webcache --now
+
+pip3 install cherrypy
+kcli create sushy-service --port 9000
+systemctl enable ksushy --now
+
+dnf -y install podman httpd-tools
+REGISTRY_NAME=infra.5g-deployment.lab
+mkdir -p /opt/registry/{auth,certs,data,conf}
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/registry/registry-key.pem -o /opt/registry/certs/registry-key.pem
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/registry/registry-cert.pem -o /opt/registry/certs/registry-cert.pem
+htpasswd -bBc /opt/registry/auth/htpasswd admin r3dh4t1!
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/registry/config.yml -o /opt/registry/conf/config.yml
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/registry/podman-registry.service -o /etc/systemd/system/podman-registry.service
+systemctl daemon-reload
+systemctl enable podman-registry --now
+cp /opt/registry/certs/registry-cert.pem /etc/pki/ca-trust/source/anchors/
+update-ca-trust
+sleep 100
+podman login --authfile auth.json -u admin  infra.5g-deployment.lab:8443 -p r3dh4t1!
+
+
+mkdir -p /opt/gitea/
+chown -R 1000:1000 /opt/gitea/
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/gitea/podman-gitea.service -o /etc/systemd/system/podman-gitea.service
+systemctl daemon-reload
+systemctl enable podman-gitea --now
+sleep 200
+podman exec --user 1000 gitea /bin/sh -c 'gitea admin user create --username student --password student --email student@5g-deployment.lab --must-change-password=false --admin'
+curl -u 'student:student' -H 'Content-Type: application/json' -X POST --data '{"service":"2","clone_addr":"https://github.com/RHsyseng/5g-ran-deployments-on-ocp-lab.git","uid":1,"repo_name":"5g-ran-deployments-on-ocp-lab"}' http://infra.5g-deployment.lab:3000/api/v1/repos/migrate
+
+
+curl -L https://raw.githubusercontent.com/fardiant/ocp-4.21/refs/heads/main/podman-minio.service -o /etc/systemd/system/podman-minio.service
+mkdir -p /opt/minio/s3-volume
+systemctl daemon-reload
+systemctl enable podman-minio --now
+
+sleep 30
+
+curl -L https://dl.min.io/aistor/mc/release/linux-amd64/mc -o /usr/local/bin/mc
+chmod +x /usr/local/bin/mc
+mc alias set minio http://192.168.125.1:9002 admin admin1234
+mc mb minio/sno-abi
+mc mb minio/sno-ibi
+mc mb minio/logs
+
+dnf install chrony -y
+curl -L https://raw.githubusercontent.com/fardiant/ocp-4.21/refs/heads/main/chrony.conf -o /etc/chrony.conf
+
+systemctl enable chronyd --now
+
+ssh-keygen -t rsa -b 2048 -N "" -f ~/.ssh/id_rsa
+
+kcli create pool -p /var/lib/libvirt/images default
+kcli create vm -P start=False -P uefi_legacy=true -P plan=hub -P memory=24000 -P numcpus=12 -P disks=[400] -P nets=['{"name": "5gdeploymentlab", "mac": "aa:aa:aa:aa:02:01"}','{"name":"ptp-network","type":"igb","vfio":"true","noconf":"true"}','{"name":"sriov-network","type":"igb","vfio":"true","noconf":"true","numa":"0"}','{"name":"sriov-network","type":"igb","vfio":"true","noconf":"true","numa":"1"}'] -P name=sno-seed
+kcli create vm -P start=False -P uefi_legacy=true -P plan=hub -P memory=32000 -P numcpus=12 -P disks=[400] -P nets=['{"name": "5gdeploymentlab", "mac": "aa:aa:aa:aa:03:01"}','{"name":"ptp-network","type":"igb","vfio":"true","noconf":"true"}','{"name":"sriov-network","type":"igb","vfio":"true","noconf":"true","numa":"0"}','{"name":"sriov-network","type":"igb","vfio":"true","noconf":"true","numa":"1"}'] -P name=sno-abi
+kcli create vm -P start=False -P uefi_legacy=true -P plan=hub -P memory=24000 -P numcpus=12 -P disks=[300,100] -P nets=['{"name": "5gdeploymentlab", "mac": "aa:aa:aa:aa:04:01"}','{"name":"ptp-network","type":"igb","vfio":"true","noconf":"true"}','{"name":"sriov-network","type":"igb","vfio":"true","noconf":"true","numa":"0"}','{"name":"sriov-network","type":"igb","vfio":"true","noconf":"true","numa":"1"}'] -P name=sno-ibi
+
+
+curl -L https://raw.githubusercontent.com/fardiant/ocp-4.21/refs/heads/main/hub-4.21.8.yaml -o /root/hub.yaml
