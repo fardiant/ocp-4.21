@@ -63,7 +63,7 @@ pip3 install cherrypy
 kcli create sushy-service --port 9000
 systemctl enable ksushy --now
 
-dnf -y install podman httpd-tools
+dnf -y install podman httpd-tools bind-utils
 REGISTRY_NAME=infra.5g-deployment.lab
 mkdir -p /opt/registry/{auth,certs,data,conf}
 curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/registry/registry-key.pem -o /opt/registry/certs/registry-key.pem
