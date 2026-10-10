@@ -1,21 +1,36 @@
 Step-by-Step Execution
 # increase SWAP and /
 
-HOME_PART=$(mount | awk '/home/ {print $1}');
-ROOT_PART=$(mount | awk '/root/ {print $1}');
-SWAP_PART=$(awk '/swap/ {print $1}' /etc/fstab);
-umount /home;
-mount ${HOME_PART} /mnt;
-mv /mnt/* /home/;
-umount /mnt;
-lvremove -y ${HOME_PART};
-lvextend -L 32G ${SWAP_PART};
-lvextend -l +100%FREE ${ROOT_PART};
-xfs_growfs /;
-sed -i '/home/d' /etc/fstab;
-swapoff ${SWAP_PART};
-mkswap ${SWAP_PART};
+HOME_PART=$(mount | awk '/home/ {print $1}')
+
+ROOT_PART=$(mount | awk '/root/ {print $1}')
+
+SWAP_PART=$(awk '/swap/ {print $1}' /etc/fstab)
+
+umount /home
+
+mount ${HOME_PART} /mnt
+
+mv /mnt/* /home/
+
+umount /mnt
+
+lvremove -y ${HOME_PART}
+
+lvextend -L 32G ${SWAP_PART}
+
+lvextend -l +100%FREE ${ROOT_PART}
+
+xfs_growfs /
+
+sed -i '/home/d' /etc/fstab
+
+swapoff ${SWAP_PART}
+
+mkswap ${SWAP_PART}
+
 swapon -va
+
 
 # install ansible 
 dnf install ansible-core -y
