@@ -1,0 +1,29 @@
+---
+- name: Execute chained commands from file and display output
+  hosts: all
+  gather_facts: false
+  vars:
+    # Path to the command file on your Ansible control node
+    commands_file_path: "/root/create-cluster"
+
+  tasks:
+    - name: Read file content from control node and extract command lines
+      ansible.builtin.set_fact:
+        command_list: "{{ lookup('file', commands_file_path).splitlines() | map('trim') | reject('equalto', '') | list }}"
+
+    - name: Execute each command in sequence
+      ansible.builtin.shell: "{{ item }}"
+      loop: "{{ command_list }}"
+      register: command_results
+
+    - name: Print detailed execution output
+      ansible.builtin.debug:
+        msg:
+          - "--------------------------------------------------"
+          - "Command:  {{ item.item }}"
+          - "Status:   {{ 'SUCCESS' if item.rc == 0 else 'FAILED' }} (Exit Code: {{ item.rc }})"
+          - "STDOUT:   {{ item.stdout if item.stdout != '' else '[No Output]' }}"
+          - "STDERR:   {{ item.stderr if item.stderr != '' else '[None]' }}"
+      loop: "{{ command_results.results }}"
+      loop_control:
+        label: "{{ item.item }}"
