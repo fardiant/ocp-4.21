@@ -1,4 +1,4 @@
-dnf -y install libvirt libvirt-daemon-driver-qemu qemu-kvm wget
+dnf -y install libvirt libvirt-daemon-driver-qemu qemu-kvm wget tmux
 usermod -aG qemu,libvirt $(id -un)
 newgrp libvirt
 
