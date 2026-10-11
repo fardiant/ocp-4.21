@@ -1,0 +1,34 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - pre-reqs/
+  - resources/
+  - hub-1/ocp-sno-abi.yaml
+
+configMapGenerator:
+  - files:
+    - reference-manifest/4.21/01-container-mount-ns-and-kubelet-conf-master.yaml
+    - reference-manifest/4.21/01-container-mount-ns-and-kubelet-conf-worker.yaml
+    - reference-manifest/4.21/01-disk-encryption-pcr-rebind-master.yaml
+    - reference-manifest/4.21/01-disk-encryption-pcr-rebind-worker.yaml
+    - reference-manifest/4.21/03-sctp-machine-config-master.yaml
+    - reference-manifest/4.21/03-sctp-machine-config-worker.yaml
+    - reference-manifest/4.21/06-kdump-master.yaml
+    - reference-manifest/4.21/06-kdump-worker.yaml
+    - reference-manifest/4.21/07-sriov-related-kernel-args-master.yaml
+    - reference-manifest/4.21/07-sriov-related-kernel-args-worker.yaml
+    - reference-manifest/4.21/08-set-rcu-normal-master.yaml
+    - reference-manifest/4.21/08-set-rcu-normal-worker.yaml
+    - reference-manifest/4.21/09-openshift-marketplace-ns.yaml
+    - reference-manifest/4.21/10-rename-gnrd-interfaces-master.yaml
+    - reference-manifest/4.21/10-rename-gnrd-interfaces-worker.yaml
+    - reference-manifest/4.21/99-sync-time-once-master.yaml
+    - reference-manifest/4.21/99-sync-time-once-worker.yaml
+    - hub-1/extra-manifest/enable-crun-master.yaml
+    - hub-1/extra-manifest/enable-crun-worker.yaml
+    name: ran-rds-421-manifests
+    namespace: sno-abi
+
+generatorOptions:
+  disableNameSuffixHash: true

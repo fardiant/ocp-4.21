@@ -1,0 +1,108 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: common
+placementBindingDefaults:
+  name: common-placement-binding
+policyDefaults:
+  namespace: ztp-policies
+  placement:
+    labelSelector:
+      common: "ocp421"
+      logicalGroup: "active"
+  remediationAction: inform
+  severity: low
+  namespaceSelector:
+    exclude:
+      - kube-*
+    include:
+      - '*'
+  evaluationInterval:
+    compliant: 10m
+    noncompliant: 10s
+policies:
+- name: common-config-policy
+  policyAnnotations:
+    ran.openshift.io/ztp-deploy-wave: "1"
+  manifests:
+    - path: source-crs/reference-crs/ReduceMonitoringFootprint.yaml
+    - path: source-crs/reference-crs/DefaultCatsrc.yaml
+      patches:
+        - metadata:
+            name: redhat-operator-index
+          spec:
+            image: infra.5g-deployment.lab:8443/redhat/redhat-operator-index:v4.21-1777899690
+- name: common-subscriptions-policy
+  policyAnnotations:
+    ran.openshift.io/ztp-deploy-wave: "2"
+  manifests:
+    # Ptp operator
+    - path: source-crs/reference-crs/PtpSubscriptionNS.yaml
+    - path: source-crs/reference-crs/PtpSubscription.yaml
+      patches:
+        - spec:
+            channel: stable
+            source: redhat-operator-index
+            installPlanApproval: Automatic
+    - path: source-crs/reference-crs/PtpSubscriptionOperGroup.yaml
+      patches:
+      - metadata:
+          annotations:
+            operatorframework.io/bundle-unpack-min-retry-interval: 10m
+    - path: source-crs/reference-crs/PtpOperatorStatus.yaml
+    - path: source-crs/reference-crs/PtpOperatorConfig-SetSelector.yaml
+      patches:
+        - spec:
+            daemonNodeSelector:
+              node-role.kubernetes.io/master: ""
+    # SRIOV operator
+    - path: source-crs/reference-crs/SriovSubscriptionNS.yaml
+    - path: source-crs/reference-crs/SriovSubscription.yaml
+      patches:
+        - spec:
+            channel: stable
+            source: redhat-operator-index
+            config:
+              env:
+                - name: "DEV_MODE"
+                  value: "TRUE"
+            installPlanApproval: Automatic
+    - path: source-crs/reference-crs/SriovSubscriptionOperGroup.yaml
+      patches:
+      - metadata:
+          annotations:
+            operatorframework.io/bundle-unpack-min-retry-interval: 10m
+    - path: source-crs/reference-crs/SriovOperatorStatus.yaml
+    # Storage operator
+    - path: source-crs/reference-crs/StorageLVMSubscriptionNS.yaml
+      patches:
+      - metadata:
+          annotations:
+            workload.openshift.io/allowed: "management"
+    - path: source-crs/reference-crs/StorageLVMSubscriptionOperGroup.yaml
+      patches:
+      - metadata:
+          annotations:
+            operatorframework.io/bundle-unpack-min-retry-interval: 10m
+    - path: source-crs/reference-crs/StorageLVMSubscription.yaml
+      patches:
+        - spec:
+            channel: stable-4.21
+            source: redhat-operator-index
+            installPlanApproval: Automatic
+    - path: source-crs/reference-crs/LVMOperatorStatus.yaml
+    # Cluster Logging
+    - path: source-crs/reference-crs/ClusterLogNS.yaml
+    - path: source-crs/reference-crs/ClusterLogSubscription.yaml
+      patches:
+        - spec:
+            channel: stable-6.5
+            source: redhat-operator-index
+            installPlanApproval: Automatic
+    - path: source-crs/reference-crs/ClusterLogOperGroup.yaml
+      patches:
+      - metadata:
+          annotations:
+            operatorframework.io/bundle-unpack-min-retry-interval: 10m
+    - path: source-crs/reference-crs/ClusterLogOperatorStatus.yaml
