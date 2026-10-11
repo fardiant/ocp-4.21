@@ -1,0 +1,90 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: du-sno-sites
+placementBindingDefaults:
+  name: group-du-sno-placement-binding
+policyDefaults:
+  namespace: ztp-policies
+  placement:
+    labelSelector:
+      common: "ocp421"
+      logicalGroup: "active"
+      hardware-type: "hw-type-platform-1"
+  remediationAction: inform
+  severity: low
+  namespaceSelector:
+    exclude:
+      - kube-*
+    include:
+      - '*'
+  evaluationInterval:
+    compliant: 10m
+    noncompliant: 10s
+policies:
+- name: du-sno-sites-sites-policy
+  policyAnnotations:
+    ran.openshift.io/ztp-deploy-wave: "100"
+  manifests:
+    - path: source-crs/reference-crs/SriovNetwork.yaml
+      # Using hub templating to obtain the SR-IOV config of each SNO
+      patches:
+      - spec:
+          ipam: '{"type": "host-local","ranges": [[{"subnet": "192.168.100.0/24"}]],"dataDir":
+        "/run/my-orchestrator/container-ipam-state-1"}'
+          resourceName: '{{hub fromConfigMap "" "site-data-configmap" (printf "%s-resourcename1" .ManagedClusterName) hub}}'
+          spoofChk: "off"
+          trust: "on"
+        metadata:
+          name: "sriov-nw-du-netdev"
+    - path: source-crs/reference-crs/SriovNetworkNodePolicy-SetSelector.yaml
+      patches:
+        - metadata:
+            name: '{{hub fromConfigMap "" "site-data-configmap" (printf "%s-resourcename1" .ManagedClusterName) hub}}'
+          spec:
+            nodeSelector:
+              node-role.kubernetes.io/master: ""
+            deviceType: netdevice
+            needVhostNet: false
+            mtu: 1500
+            linkType: eth
+            isRdma: false
+            nicSelector:
+              vendor: "8086"
+              deviceID: "10c9"
+              pfNames:
+                - '{{hub fromConfigMap "" "site-data-configmap" (printf "%s-sriovnic1" .ManagedClusterName) hub}}'
+            numVfs: 2
+            priority: 99
+            resourceName: '{{hub fromConfigMap "" "site-data-configmap" (printf "%s-resourcename1" .ManagedClusterName) hub}}'
+    - path: source-crs/reference-crs/SriovNetwork.yaml
+      patches:
+        - metadata:
+            name: "sriov-nw-du-vfio"
+          spec:
+            ipam: '{"type": "host-local","ranges": [[{"subnet": "192.168.100.0/24"}]],"dataDir":
+          "/run/my-orchestrator/container-ipam-state-1"}'
+            resourceName: '{{hub fromConfigMap "" "site-data-configmap" (printf "%s-resourcename2" .ManagedClusterName) hub}}'
+            spoofChk: "off"
+            trust: "on"
+    - path: source-crs/reference-crs/SriovNetworkNodePolicy-SetSelector.yaml
+      patches:
+        - metadata:
+            name: '{{hub fromConfigMap "" "site-data-configmap" (printf "%s-resourcename2" .ManagedClusterName) hub}}'
+          spec:
+            nodeSelector:
+              node-role.kubernetes.io/master: ""
+            deviceType: vfio-pci
+            mtu: 1500
+            linkType: eth
+            isRdma: false
+            needVhostNet: false
+            nicSelector:
+              vendor: "8086"
+              deviceID: "10c9"
+              pfNames:
+                - '{{hub fromConfigMap "" "site-data-configmap" (printf "%s-sriovnic2" .ManagedClusterName) hub}}'
+            numVfs: 2
+            priority: 99
+            resourceName: '{{hub fromConfigMap "" "site-data-configmap" (printf "%s-resourcename2" .ManagedClusterName) hub}}'

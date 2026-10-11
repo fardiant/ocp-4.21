@@ -1,0 +1,95 @@
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: du-sno-test
+placementBindingDefaults:
+  name: group-du-sno-placement-binding
+policyDefaults:
+  namespace: ztp-policies
+  placement:
+    labelSelector:
+      group-du-sno: ""
+      logicalGroup: "testing"
+      hardware-type: "hw-type-platform-1"
+  remediationAction: inform
+  severity: low
+  # standards: []
+  namespaceSelector:
+    exclude:
+      - kube-*
+    include:
+      - '*'
+  evaluationInterval:
+    compliant: 10m
+    noncompliant: 10s
+policies:
+- name: du-sno-test-group-policy
+  policyAnnotations:
+    ran.openshift.io/ztp-deploy-wave: "10"
+  manifests:
+    - path: source-crs/reference-crs/DisableOLMPprof.yaml
+    - path: source-crs/reference-crs/DisableSnoNetworkDiag.yaml
+    - path: source-crs/reference-crs/ConsoleOperatorDisable.yaml
+    - path: source-crs/reference-crs/SriovOperatorConfig-SetSelector.yaml
+      patches:
+      - spec:
+          disableDrain: true
+          enableOperatorWebhook: '{{hub fromConfigMap "" "group-hardware-types-configmap" (printf "%s-supported-sriov-nic" (index .ManagedClusterLabels "hardware-type")) | toBool hub}}'
+    - path: source-crs/reference-crs/StorageLVMCluster.yaml
+      patches:
+      - spec:
+          storage:
+            deviceClasses:
+              - name: vg1
+                thinPoolConfig:
+                  name: thin-pool-1
+                  sizePercent: 90
+                  overprovisionRatio: 10
+                deviceSelector:
+                  paths:
+                  - '{{hub fromConfigMap "" "group-hardware-types-configmap" (printf "%s-storage-path" (index .ManagedClusterLabels "hardware-type")) hub}}'
+    - path: source-crs/reference-crs/PerformanceProfile-SetSelector.yaml
+      patches:
+      - spec:
+          cpu:
+            isolated: '{{hub fromConfigMap "" "group-hardware-types-configmap" (printf "%s-cpu-isolated" (index .ManagedClusterLabels "hardware-type")) hub}}'
+            reserved: '{{hub fromConfigMap "" "group-hardware-types-configmap" (printf "%s-cpu-reserved" (index .ManagedClusterLabels "hardware-type")) hub}}'
+          hugepages:
+            defaultHugepagesSize: '{{hub fromConfigMap "" "group-hardware-types-configmap" (printf "%s-hugepages-default" (index .ManagedClusterLabels "hardware-type"))| hub}}'
+            pages:
+            - count: '{{hub fromConfigMap "" "group-hardware-types-configmap" (printf "%s-hugepages-count" (index .ManagedClusterLabels "hardware-type")) | toInt hub}}'
+              size: '{{hub fromConfigMap "" "group-hardware-types-configmap" (printf "%s-hugepages-size" (index .ManagedClusterLabels "hardware-type")) hub}}'
+          numa:
+            topologyPolicy: restricted
+          realTimeKernel:
+            enabled: false
+          # WorkloadHints defines the set of upper level flags for different type of workloads.
+          # The configuration below is set for a low latency, performance mode.
+          workloadHints:
+            realTime: true
+            highPowerConsumption: false
+            perPodPowerManagement: false
+          machineConfigPoolSelector:
+            pools.operator.machineconfiguration.openshift.io/master: ""
+          nodeSelector:
+            node-role.kubernetes.io/master: ''
+    - path: source-crs/reference-crs/TunedPerformancePatch.yaml
+      patches:
+      - spec:
+          profile:
+            - name: performance-patch
+              data: |
+                [main]
+                summary=Configuration changes profile inherited from performance created tuned
+                include=openshift-node-performance-openshift-node-performance-profile
+                [sysctl]
+                # When using the standard (non-realtime) kernel, remove the kernel.timer_migration override from the [sysctl] section
+                # kernel.timer_migration=0
+                [scheduler]
+                group.ice-ptp=0:f:10:*:ice-ptp.*
+                group.ice-gnss=0:f:10:*:ice-gnss.*
+                group.ice-dplls=0:f:10:*:ice-dplls.*
+                [service]
+                service.stalld=start,enable
+                service.chronyd=stop,disable
