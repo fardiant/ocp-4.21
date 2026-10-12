@@ -1,6 +1,5 @@
 Step-by-Step Execution
 # increase SWAP and /
-
 HOME_PART=$(mount | awk '/home/ {print $1}')
 
 ROOT_PART=$(mount | awk '/root/ {print $1}')
@@ -47,3 +46,8 @@ ansible-playbook -i localhost, -c local run-command.yml
 
 # create the cluster
 kcli create cluster openshift --pf hub.yml
+
+# clone from Internet to local repo
+curl -u 'student:student' -H 'Content-Type: application/json' -X POST --data '{"service":"2","clone_addr":"https://github.com/fardiant/ocp-4.21.git","uid":1,"repo_name":"5g-deployment-lab"}' http://infra.5g-deployment.lab:3000/api/v1/repos/migrate
+
+
