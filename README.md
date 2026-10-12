@@ -76,3 +76,10 @@ oc apply -k ~/5g-deployment-lab/ztp-pipeline/argocd/deployment/
 ```
 <img width="1900" height="722" alt="image" src="https://github.com/user-attachments/assets/ee57592c-b8f8-4700-b2dd-1b96bf83a0af" />
 
+# check the managedcluster
+```
+oc get agentclusterinstall,agent -A
+oc get managedcluster -A
+```
+<img width="1876" height="913" alt="image" src="https://github.com/user-attachments/assets/40369ee2-79ed-4282-80a2-aeb9bd16c17f" />
+
