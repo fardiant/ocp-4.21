@@ -18,8 +18,8 @@ spec:
     namespace: clusters-sub
   project: ztp-app-project
   source:
-    path: site-configs
-    repoURL: http://infra.5g-deployment.lab:3000/student/ztp-repository.git
+    path: ztp-repository/site-configs
+    repoURL: http://infra.5g-deployment.lab:3000/student/5g-deployment-lab.git
     targetRevision: main
     # uncomment the below plugin if you will be adding the plugin binaries in the same repo->dir where
     # the sitconfig.yaml exist AND use the ../../hack/patch-argocd-dev.sh script to re-patch the deployment-repo-server
