@@ -59,4 +59,5 @@ oc -n openshift-gitops adm policy add-cluster-role-to-user cluster-admin -z open
 ```
 oc apply -f https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/hub-cluster/hub-operators-argoapps.yaml
 ```
+<img width="1491" height="701" alt="image" src="https://github.com/user-attachments/assets/6adb65b1-8958-4efc-8a1d-64b1ba3d7f8b" />
 
