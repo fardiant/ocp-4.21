@@ -57,6 +57,6 @@ oc -n openshift-gitops adm policy add-cluster-role-to-user cluster-admin -z open
 
 # Deploy OpenShift HUB Cluster Operators anc check on ArgoCD
 ```
-oc apply -f https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.18/lab-materials/lab-env-data/hub-cluster/hub-operators-argoapps.yaml
+oc apply -f https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/hub-cluster/hub-operators-argoapps.yaml
 ```
 
