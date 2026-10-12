@@ -42,6 +42,7 @@ kcli create cluster openshift --pf hub.yml
 ```
 curl -u 'student:student' -H 'Content-Type: application/json' -X POST --data '{"service":"2","clone_addr":"https://github.com/fardiant/ocp-4.21.git","uid":1,"repo_name":"5g-deployment-lab"}' http://infra.5g-deployment.lab:3000/api/v1/repos/migrate
 ```
+<img width="1777" height="797" alt="image" src="https://github.com/user-attachments/assets/2e58468d-4105-46af-aa1b-b66fcc69854e" />
 
 
 # Configure OpenShift Hub Cluster 
