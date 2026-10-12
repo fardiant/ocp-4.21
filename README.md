@@ -83,3 +83,5 @@ oc get managedcluster -A
 ```
 <img width="1876" height="913" alt="image" src="https://github.com/user-attachments/assets/40369ee2-79ed-4282-80a2-aeb9bd16c17f" />
 
+# check grafana
+<img width="1902" height="1000" alt="image" src="https://github.com/user-attachments/assets/7f4eaa74-1248-4efd-be21-2f6dc5fbd51d" />
