@@ -69,3 +69,8 @@ git add --all
 git commit -m 'change sshPublicKey in 5g-deployment-lab/ztp-repository/site-configs/hub-1/ocp-sno-abi.yaml'
 git push
 ```
+
+# Apply the ZTP GitOps Pipeline configuration:
+```
+oc apply -k ~/5g-deployment-lab/ztp-pipeline/argocd/deployment/
+```
