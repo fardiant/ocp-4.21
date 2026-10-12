@@ -65,7 +65,7 @@ workers: 0
 metal3: true
 network: 5gdeploymentlab
 users_dev: developer
-users_devpassword: 'I6QLmVP6mYTn2HDu'
+users_devpassword: 'developer'
 users_admin: admin
 users_adminpassword: 'admin1234'
 lvms_devices:
