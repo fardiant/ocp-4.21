@@ -65,34 +65,7 @@ oc apply -f https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp
 
 # edit sshPublicKey in "5g-deployment-lab/ztp-repository/site-configs/hub-1/ocp-sno-abi.yaml" and commit the changes
 ```
-[root@dell-r730-051 5g-deployment-lab]# git add --all
-[root@dell-r730-051 5g-deployment-lab]# git commit -m 'change sshPublicKey in 5g-deployment-lab/ztp-repository/site-configs/hub-1/ocp-sno-abi.yaml'
-[main 1b4c447] change sshPublicKey in 5g-deployment-lab/ztp-repository/site-configs/hub-1/ocp-sno-abi.yaml
- Committer: root <root@dell-r730-051.bkr.lab.eng.rdu2.dc.redhat.com>
-Your name and email address were configured automatically based
-on your username and hostname. Please check that they are accurate.
-You can suppress this message by setting them explicitly. Run the
-following command and follow the instructions in your editor to edit
-your configuration file:
-
-    git config --global --edit
-
-After doing this, you may fix the identity used for this commit with:
-
-    git commit --amend --reset-author
-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-[root@dell-r730-051 5g-deployment-lab]# git push
-Username for 'http://infra.5g-deployment.lab:3000': student
-Password for 'http://student@infra.5g-deployment.lab:3000':
-Enumerating objects: 11, done.
-Counting objects: 100% (11/11), done.
-Delta compression using up to 20 threads
-Compressing objects: 100% (6/6), done.
-Writing objects: 100% (6/6), 904 bytes | 904.00 KiB/s, done.
-Total 6 (delta 5), reused 0 (delta 0), pack-reused 0
-remote: . Processing 1 references
-remote: Processed 1 references in total
-To http://infra.5g-deployment.lab:3000/student/5g-deployment-lab.git
-   fef790f..1b4c447  main -> main
+git add --all
+git commit -m 'change sshPublicKey in 5g-deployment-lab/ztp-repository/site-configs/hub-1/ocp-sno-abi.yaml'
+git push
 ```
