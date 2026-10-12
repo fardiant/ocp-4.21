@@ -33,7 +33,7 @@ curl -L https://raw.githubusercontent.com/fardiant/ocp-4.21/refs/heads/main/hub-
 ansible-playbook -i localhost, -c local run-command.yml
 ```
 
-# create the cluster
+# create the cluster ~2h
 ```
 kcli create cluster openshift --pf hub.yml
 ```
@@ -70,7 +70,7 @@ git commit -m 'change sshPublicKey in 5g-deployment-lab/ztp-repository/site-conf
 git push
 ```
 
-# Apply the ZTP GitOps Pipeline configuration:
+# Apply the ZTP GitOps Pipeline configuration ~60min to finish
 ```
 oc apply -k ~/5g-deployment-lab/ztp-pipeline/argocd/deployment/
 ```
