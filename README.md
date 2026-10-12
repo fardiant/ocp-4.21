@@ -74,3 +74,5 @@ git push
 ```
 oc apply -k ~/5g-deployment-lab/ztp-pipeline/argocd/deployment/
 ```
+<img width="1900" height="722" alt="image" src="https://github.com/user-attachments/assets/ee57592c-b8f8-4700-b2dd-1b96bf83a0af" />
+
