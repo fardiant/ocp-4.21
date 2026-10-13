@@ -94,3 +94,11 @@ s3cmd ls
 
 # check grafana
 <img width="1902" height="1000" alt="image" src="https://github.com/user-attachments/assets/7f4eaa74-1248-4efd-be21-2f6dc5fbd51d" />
+
+
+# Configure backup
+```
+oc create secret generic cloud-credentials --from-file cloud=cloud-credentials
+oc apply -f dap.yaml
+```
+<img width="1552" height="665" alt="image" src="https://github.com/user-attachments/assets/73279a74-361b-4176-9ef2-5a078f3f50ba" />
