@@ -81,6 +81,11 @@ oc apply -k ~/5g-deployment-lab/ztp-pipeline/argocd/deployment/
 oc get agentclusterinstall,agent -A
 oc get managedcluster -A
 ```
+
+# check the MINIO bucket
+```
+s3cmd ls
+```
 <img width="1876" height="913" alt="image" src="https://github.com/user-attachments/assets/40369ee2-79ed-4282-80a2-aeb9bd16c17f" />
 
 # check grafana
