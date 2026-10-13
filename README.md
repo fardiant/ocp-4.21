@@ -83,6 +83,9 @@ oc get managedcluster -A
 ```
 <img width="1876" height="913" alt="image" src="https://github.com/user-attachments/assets/40369ee2-79ed-4282-80a2-aeb9bd16c17f" />
 
+# check the MINIO GUI
+<img width="1911" height="677" alt="image" src="https://github.com/user-attachments/assets/162054a8-8089-41d4-b1f9-c7f4ae9d449a" />
+
 # check the MINIO bucket
 ```
 s3cmd ls
