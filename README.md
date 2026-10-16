@@ -119,3 +119,8 @@ podman tag docker.io/calvarado2004/exoplanets infra.5g-deployment.lab:8443/calva
 podman push infra.5g-deployment.lab:8443/calvarado2004/exoplanets --remove-signatures
 ```
 
+# troubelshooting sno-abi not join cluster enable addon
+```
+oc edit KlusterletAddonConfig -n sno-abi sno-abi
+```
+
