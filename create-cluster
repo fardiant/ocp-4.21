@@ -104,7 +104,7 @@ mc alias set minio http://192.168.125.1:9002 admin admin1234
 mc mb minio/sno-abi
 mc mb minio/sno-ibi
 mc mb minio/logs
-curl -L https://raw.githubusercontent.com/fardiant/ocp-4.21/refs/heads/main/.s3cfg /root/.s3cfg
+curl -L https://raw.githubusercontent.com/fardiant/ocp-4.21/refs/heads/main/.s3cfg -o /root/.s3cfg
 
 dnf install chrony -y
 curl -L https://raw.githubusercontent.com/fardiant/ocp-4.21/refs/heads/main/chrony.conf -o /etc/chrony.conf
