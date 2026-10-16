@@ -89,6 +89,7 @@ systemctl enable podman-gitea --now
 sleep 200
 podman exec --user 1000 gitea /bin/sh -c 'gitea admin user create --username student --password student --email student@5g-deployment.lab --must-change-password=false --admin'
 curl -u 'student:student' -H 'Content-Type: application/json' -X POST --data '{"service":"2","clone_addr":"https://github.com/RHsyseng/5g-ran-deployments-on-ocp-lab.git","uid":1,"repo_name":"5g-ran-deployments-on-ocp-lab"}' http://infra.5g-deployment.lab:3000/api/v1/repos/migrate
+curl -u 'student:student' -H 'Content-Type: application/json' -X POST --data '{"service":"2","clone_addr":"https://github.com/fardiant/exoplanet.git","uid":1,"repo_name":"exoplanet"}' http://infra.5g-deployment.lab:3000/api/v1/repos/migrate
 
 pip install s3cmd
 curl -L https://raw.githubusercontent.com/fardiant/ocp-4.21/refs/heads/main/podman-minio.service -o /etc/systemd/system/podman-minio.service
