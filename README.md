@@ -107,3 +107,15 @@ oc create secret generic cloud-credentials --from-file cloud=cloud-credentials
 oc apply -f dap.yaml
 ```
 <img width="1552" height="665" alt="image" src="https://github.com/user-attachments/assets/73279a74-361b-4176-9ef2-5a078f3f50ba" />
+
+# pull and push image for exoplanet
+```
+podman pull registry.redhat.io/rhel10/postgresql-18
+podman tag registry.redhat.io/rhel10/postgresql-18:latest  infra.5g-deployment.lab:8443/rhel10/postgresql-18:latest
+podman push infra.5g-deployment.lab:8443/rhel10/postgresql-18:latest --remove-signatures
+
+podman pull docker.io/calvarado2004/exoplanets
+podman tag docker.io/calvarado2004/exoplanets infra.5g-deployment.lab:8443/calvarado2004/exoplanets
+podman push infra.5g-deployment.lab:8443/calvarado2004/exoplanets --remove-signatures
+```
+
