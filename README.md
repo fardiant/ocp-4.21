@@ -66,6 +66,7 @@ oc apply -f https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp
 ```
 git clone http://infra.5g-deployment.lab:3000/student/5g-deployment-lab.git
 git clone http://infra.5g-deployment.lab:3000/student/5g-ran-deployments-on-ocp-lab.git
+git clone http://infra.5g-deployment.lab:3000/student/exoplanet.git
 ```
 
 # edit sshPublicKey in "5g-deployment-lab/ztp-repository/site-configs/hub-1/ocp-sno-abi.yaml" and commit the changes
