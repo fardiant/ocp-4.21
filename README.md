@@ -86,6 +86,9 @@ oc apply -k ~/5g-deployment-lab/ztp-pipeline/argocd/deployment/
 ```
 oc get agentclusterinstall,agent -A
 oc get managedcluster -A
+
+oc -n sno-abi extract secret/sno-abi-admin-kubeconfig --to=- > ~/sno-abi-admin-kubeconfig
+oc --kubeconfig  ~/sno-abi-admin-kubeconfig get nodes,clusterversion
 ```
 <img width="1876" height="913" alt="image" src="https://github.com/user-attachments/assets/40369ee2-79ed-4282-80a2-aeb9bd16c17f" />
 
