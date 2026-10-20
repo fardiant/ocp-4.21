@@ -102,7 +102,7 @@ s3cmd ls
 <img width="468" height="106" alt="image" src="https://github.com/user-attachments/assets/089cf6bd-0f21-4286-ae4c-b33324041cc8" />
 
 # check grafana
-<img width="1902" height="1000" alt="image" src="https://github.com/user-attachments/assets/7f4eaa74-1248-4efd-be21-2f6dc5fbd51d" />
+<img width="1902" height="972" alt="image" src="https://github.com/user-attachments/assets/42441490-48b6-4aa6-9c09-cc3aa1ca7d47" />
 
 
 # Configure backup
