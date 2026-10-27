@@ -1,3 +1,5 @@
+
+```
 HYPERVISOR_PUBLIC_HOSTNAME=$(hostname)
 mkdir -p /opt/showroom
 git clone -b lab-4.21 https://github.com/RHsyseng/5g-ran-deployments-on-ocp-lab.git /opt/showroom/lab-repo/
@@ -51,4 +53,4 @@ sed -i "s|<CHANGEME_HTPASS_USER>|$HTPASS_USER|" /opt/showroom/traefik/config/tra
 sed -i "s/<CHANGEME_HYPERVISOR_PUBLIC_HOSTNAME>/$HYPERVISOR_PUBLIC_HOSTNAME/" /opt/showroom/traefik/config/traefik/dynamic_config.yml
 systemctl daemon-reload
 systemctl enable podman-showroom-traefik --now
-
+```
