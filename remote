@@ -1,4 +1,8 @@
+useradd lab-user -G libvirt
+passwd lab-user
 
+visudo
+usermod -aG wheel lab-user
 ```
 HYPERVISOR_PUBLIC_HOSTNAME=$(hostname)
 mkdir -p /opt/showroom
