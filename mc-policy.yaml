@@ -121,4 +121,31 @@ spec:
               complianceType: musthave
   remediationAction: enforce
 ---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: mc-custom-placement
+  namespace: ztp-policies
+spec:
+  tolerations:
+    - key: cluster.open-cluster-management.io/unreachable
+      operator: Exists
+    - key: cluster.open-cluster-management.io/unavailable
+      operator: Exists
+  clusterSets:
+    - sno
+---
+apiVersion: policy.open-cluster-management.io/v1
+kind: PlacementBinding
+metadata:
+  name: mc-custom-placement
+  namespace: ztp-policies
+placementRef:
+  name: mc-custom-placement
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
+subjects:
+  - name: mc-custom
+    apiGroup: policy.open-cluster-management.io
+    kind: Policy
 
