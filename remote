@@ -1,0 +1,54 @@
+HYPERVISOR_PUBLIC_HOSTNAME=$(hostname)
+mkdir -p /opt/showroom
+git clone -b lab-4.21 https://github.com/RHsyseng/5g-ran-deployments-on-ocp-lab.git /opt/showroom/lab-repo/
+podman run --rm -v /opt/showroom/lab-repo:/antora:z quay.io/rhsysdeseng/showroom:antora-v3.0.0 site.yml
+mkdir -p /opt/showroom/lab-content
+cp -pr /opt/showroom/lab-repo/gh-pages/* /opt/showroom/lab-content/
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/showroom/webfiles/index.html -o /opt/showroom/lab-content/index.html
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/showroom/webfiles/split.css -o /opt/showroom/lab-content/split.css
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/showroom/webfiles/tabs.css -o /opt/showroom/lab-content/tabs.css
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/showroom/webfiles/tabs.js -o /opt/showroom/lab-content/tabs.js
+sed -i "s/<CHANGEME_LAB_VERSION>/4.21/" /opt/showroom/lab-content/index.html
+sed -i "s/<CHANGEME_HYPERVISOR_PUBLIC_HOSTNAME>/$HYPERVISOR_PUBLIC_HOSTNAME/" /opt/showroom/lab-content/index.html
+
+sleep 30
+
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/showroom/podman-showroom-apache.service -o /etc/systemd/system/podman-showroom-apache.service
+systemctl daemon-reload
+systemctl enable podman-showroom-apache --now
+
+sleep 40
+
+LAB_USER_PWD=lab-user
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/showroom/podman-showroom-wetty.service -o /etc/systemd/system/podman-showroom-wetty.service
+sed -i "s/<CHANGEME_LAB_USER>/lab-user/" /etc/systemd/system/podman-showroom-wetty.service
+sed -i "s/<CHANGEME_LAB_USER_PWD>/$LAB_USER_PWD/" /etc/systemd/system/podman-showroom-wetty.service
+systemctl daemon-reload
+systemctl enable podman-showroom-wetty --now
+
+sleep 30
+
+HTPASS_PASSWORD=lab-user
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/showroom/podman-showroom-firefox.service -o /etc/systemd/system/podman-showroom-firefox.service
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/showroom/firefox-config.tar.gz -o /tmp/firefox-config.tar.gz
+tar xfz /tmp/firefox-config.tar.gz -C /opt/showroom/
+rm -f /tmp/firefox-config.tar.gz
+sed -i "s/<CHANGEME_LAB_USER>/lab-user/" /etc/systemd/system/podman-showroom-firefox.service
+sed -i "s/<CHANGEME_LAB_USER_PWD>/$HTPASS_PASSWORD/" /etc/systemd/system/podman-showroom-firefox.service
+systemctl daemon-reload
+systemctl enable podman-showroom-firefox --now
+
+sleep 30
+
+HTPASS_USER=$(echo $HTPASS_PASSWORD | htpasswd -i -n lab-user)
+HYPERVISOR_PUBLIC_HOSTNAME=$(hostname)
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/showroom/podman-showroom-traefik.service -o /etc/systemd/system/podman-showroom-traefik.service
+curl -sL https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/showroom/traefik-config.tar.gz -o /tmp/traefik-config.tar.gz
+mkdir -p /opt/showroom/traefik
+tar xfz /tmp/traefik-config.tar.gz -C /opt/showroom/traefik/
+rm -f /tmp/traefik-config.tar.gz
+sed -i "s|<CHANGEME_HTPASS_USER>|$HTPASS_USER|" /opt/showroom/traefik/config/traefik/dynamic_config.yml
+sed -i "s/<CHANGEME_HYPERVISOR_PUBLIC_HOSTNAME>/$HYPERVISOR_PUBLIC_HOSTNAME/" /opt/showroom/traefik/config/traefik/dynamic_config.yml
+systemctl daemon-reload
+systemctl enable podman-showroom-traefik --now
+
