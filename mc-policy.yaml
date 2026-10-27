@@ -1,0 +1,124 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: mc-custom
+  namespace: ztp-policies
+  annotations:
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+spec:
+  disabled: false
+  policy-templates:
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: 40-master-custom-journald
+        spec:
+          remediationAction: enforce
+          severity: low
+          object-templates:
+            - objectDefinition:
+                apiVersion: machineconfiguration.openshift.io/v1
+                kind: MachineConfig
+                metadata:
+                  name: 40-master-custom-journald
+                  labels:
+                    machineconfiguration.openshift.io/role: master
+                spec:
+                  config:
+                    storage:
+                      files:
+                        - mode: 420
+                          path: /etc/systemd/journald.conf.d/10-custom-journald.conf
+                          overwrite: true
+                          contents:
+                            source: data:,%5BJournal%5D%0AMaxRetentionSec%3D1month%0ARateLimitIntervalSec%3D30s%0ARateLimitBurst%3D10000%0AStorage%3Dpersistent%0ASyncIntervalSec%3D1s%0A
+                    ignition:
+                      version: 3.5.0
+              complianceType: musthave
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: 90-master-kubelet-sysctls
+        spec:
+          remediationAction: enforce
+          severity: low
+          object-templates:
+            - objectDefinition:
+                apiVersion: machineconfiguration.openshift.io/v1
+                kind: MachineConfig
+                metadata:
+                  name: 90-master-kubelet-sysctls
+                  labels:
+                    machineconfiguration.openshift.io/role: master
+                spec:
+                  config:
+                    storage:
+                      files:
+                        - mode: 420
+                          path: /etc/sysctl.d/90-kubelet.conf
+                          overwrite: true
+                          contents:
+                            source: data:,vm.overcommit_memory%3D1%0Avm.panic_on_oom%3D0%0Akernel.panic%3D10%0Akernel.panic_on_oops%3D1%0Akernel.keys.root_maxkeys%3D1000000%0Akernel.keys.root_maxbytes%3D25000000%0A
+                    ignition:
+                      version: 3.5.0
+              complianceType: musthave
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: gc-kubeletconfig
+        spec:
+          namespaceSelector:
+            exclude:
+              - kube-*
+            include:
+              - default
+          remediationAction: enforce
+          severity: low
+          object-templates:
+            - objectDefinition:
+                apiVersion: machineconfiguration.openshift.io/v1
+                kind: KubeletConfig
+                metadata:
+                  name: hub-master-kubelet
+                spec:
+                  machineConfigPoolSelector:
+                    matchLabels:
+                      pools.operator.machineconfiguration.openshift.io/master: ""
+                  autoSizingReserved: true
+                  kubeletConfig:
+                    evictionHard:
+                      imagefs.available: 10%
+                      imagefs.inodesFree: 5%
+                      memory.available: 5%
+                      nodefs.available: 5%
+                      nodefs.inodesFree: 4%
+                    evictionMaxPodGracePeriod: 60
+                    evictionPressureTransitionPeriod: 5m0s
+                    evictionSoft:
+                      imagefs.available: 15%
+                      imagefs.inodesFree: 10%
+                      memory.available: 10%
+                      nodefs.available: 10%
+                      nodefs.inodesFree: 5%
+                    evictionSoftGracePeriod:
+                      imagefs.available: 1m30s
+                      imagefs.inodesFree: 1m30s
+                      memory.available: 1m30s
+                      nodefs.available: 1m30s
+                      nodefs.inodesFree: 1m30s
+                    imageGCHighThresholdPercent: 80
+                    imageGCLowThresholdPercent: 75
+                    imageMinimumGCAge: 5m
+                    protectKernelDefaults: true
+                    shutdownGracePeriod: 2m
+                    shutdownGracePeriodCriticalPods: 1m
+                    streamingConnectionIdleTimeout: 15m
+              complianceType: musthave
+  remediationAction: enforce
+---
+
