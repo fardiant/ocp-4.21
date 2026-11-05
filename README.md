@@ -82,13 +82,16 @@ oc apply -k ~/5g-deployment-lab/ztp-pipeline/argocd/deployment/
 ```
 <img width="1900" height="722" alt="image" src="https://github.com/user-attachments/assets/ee57592c-b8f8-4700-b2dd-1b96bf83a0af" />
 
-# check the managedcluster
+# check the managedcluster sno-abi
 ```
 oc get agentclusterinstall,agent -A
 oc get managedcluster -A
 
 oc -n sno-abi extract secret/sno-abi-admin-kubeconfig --to=- > ~/sno-abi-admin-kubeconfig
 oc --kubeconfig  ~/sno-abi-admin-kubeconfig get nodes,clusterversion
+
+# enable console on SNO
+oc --kubeconfig ~/sno-abi-admin-kubeconfig patch clusterversion version --type merge -p '{"spec":{"capabilities":{"additionalEnabledCapabilities":["Console"]}}}'
 ```
 <img width="1876" height="913" alt="image" src="https://github.com/user-attachments/assets/40369ee2-79ed-4282-80a2-aeb9bd16c17f" />
 
