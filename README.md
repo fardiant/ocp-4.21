@@ -92,12 +92,15 @@ oc --kubeconfig ~/sno-abi-admin-kubeconfig get nodes,clusterversion
 
 # enable console on SNO
 oc --kubeconfig ~/sno-abi-admin-kubeconfig patch clusterversion version --type merge -p '{"spec":{"capabilities":{"additionalEnabledCapabilities":["Console"]}}}'
+oc --kubeconfig  ~/sno-abi-admin-kubeconfig  patch console.operator.openshift.io cluster --type merge -p '{"spec":{"managementState":"Managed"}}'
 
 # sno-seed
 oc -n sno-seed extract secret/sno-seed-admin-kubeconfig --to=- > ~/sno-seed-admin-kubeconfig
 oc --kubeconfig ~/sno-seed-admin-kubeconfig get nodes,clusterversion
 
 oc --kubeconfig ~/sno-seed-admin-kubeconfig patch clusterversion version --type merge -p '{"spec":{"capabilities":{"additionalEnabledCapabilities":["Console"]}}}'
+
+oc --kubeconfig  ~/sno-seed-admin-kubeconfig patch console.operator.openshift.io cluster --type merge -p '{"spec":{"managementState":"Managed"}}'
 ```
 <img width="1876" height="913" alt="image" src="https://github.com/user-attachments/assets/40369ee2-79ed-4282-80a2-aeb9bd16c17f" />
 
