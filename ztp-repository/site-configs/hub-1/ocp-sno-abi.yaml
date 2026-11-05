@@ -31,6 +31,7 @@ spec:
         "baselineCapabilitySet": "None",
         "additionalEnabledCapabilities": [
           "NodeTuning",
+          "Console",
           "OperatorLifecycleManager",
           "Ingress"
         ]
