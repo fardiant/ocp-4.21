@@ -121,4 +121,4 @@ kcli create vm -P start=False -P uefi_legacy=true -P plan=hub -P memory=24000 -P
 
 pip install -U kcli
 
-curl -L https://raw.githubusercontent.com/fardiant/ocp-4.21/refs/heads/main/hub-4.21.8.yaml -o /root/hub.yaml
+curl -L https://raw.githubusercontent.com/fardiant/ocp-4.21/refs/heads/main/connected-ocp5.yaml -o /root/connected-ocp5.yaml
