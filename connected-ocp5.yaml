@@ -1,0 +1,52 @@
+plan: hub-cluster
+force: false
+version: stable
+#disconnected_channel: fast
+tag: "5.0.0"
+cluster: "hub"
+domain: 5g-deployment.lab
+api_ip: 192.168.125.10
+ingress_ip: 192.168.125.11
+prega: False
+disk_size: 120
+extra_disks: [120]
+memory: 26000
+numcpus: 16
+ctlplanes: 3
+workers: 2
+metal3: true
+network: 5gdeploymentlab
+users_dev: developer
+users_devpassword: 'developer'
+users_admin: admin
+users_adminpassword: 'admin1234'
+lvms_devices:
+- /dev/vdb
+apps:
+- users
+- openshift-gitops-operator
+- lvms-operator
+vmrules:
+- hub-bootstrap:
+    nets:
+    - name: 5gdeploymentlab
+      mac: aa:aa:aa:aa:01:07
+- hub-ctlplane-0:
+    nets:
+    - name: 5gdeploymentlab
+      mac: aa:aa:aa:aa:01:01
+    - name: ptp-network
+      # sriov: true creates virtual igb ifaces with ptp support
+      sriov: true
+- hub-ctlplane-1:
+    nets:
+    - name: 5gdeploymentlab
+      mac: aa:aa:aa:aa:01:02
+    - name: ptp-network
+      sriov: true
+- hub-ctlplane-2:
+    nets:
+    - name: 5gdeploymentlab
+      mac: aa:aa:aa:aa:01:03
+    - name: ptp-network
+      sriov: true
