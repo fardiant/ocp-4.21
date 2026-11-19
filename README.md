@@ -56,6 +56,28 @@ oc wait --for=condition=Ready pod -lapp.kubernetes.io/name=openshift-gitops-repo
 oc -n openshift-gitops adm policy add-cluster-role-to-user cluster-admin -z openshift-gitops-argocd-application-controller
 ```
 
+# WA for connected environment by creating new CS
+```
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: cs-redhat-operator-index-v4-21-177789
+  namespace: openshift-marketplace
+spec:
+  displayName: Red Hat Operator Index (v4.21)
+  image: registry.redhat.io/redhat/redhat-operator-index:v4.21
+  publisher: Red Hat
+  sourceType: grpc
+  grpcPodConfig:
+    securityContextConfig: restricted
+    extractContent:
+      cacheDir: /tmp/cache
+      catalogDir: /configs
+    memoryTarget: 30Mi
+  updateStrategy:
+    registryPoll:
+      interval: 240m
+```
 # Deploy OpenShift HUB Cluster Operators anc check on ArgoCD
 ```
 oc apply -f https://raw.githubusercontent.com/RHsyseng/5g-ran-deployments-on-ocp-lab/lab-4.21/lab-materials/lab-env-data/hub-cluster/hub-operators-argoapps.yaml
